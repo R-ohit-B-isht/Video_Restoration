@@ -3,19 +3,15 @@
 	import Dashboard from "./Dashboard.svelte";
 	// import f51 from '/images/Frame51.png.'
 	let version;
+	let fileInput="C:\Users\rbtun\Videos\VID_20210130_151000.mp4";
 	let mode=1;
 	const get_version=async()=>{
 		version=await api.GetVersion()
 	}
-	const applying=async()=>{
-		await  api.ApplyTheme()
-	}
-	const a1=async()=>{
-		await api.W1()
-	}
-	const a2=async()=>{
-		await api.W2()
-	}
+	 import DropFile from '@svelte-parts/drop-file'
+
+  const onDrop = files => {fileInput=files[0].path} 
+
 	let user={
 		name:"Rohit",
 		username:"rb",
@@ -30,6 +26,8 @@ function modeChange(){
 	if(mode!=1)
 	mode=1
 }
+
+
 </script>
 
 <main>
@@ -37,13 +35,24 @@ function modeChange(){
 	<h1>version is {version}<h1>
 		<div class="ui placeholder segment">
 			<div class="ui icon header">
-			  <i class="video file outline icon"></i>
-			  Add video.
+			  <i class="video file outline icon" type="file" bind:this={fileInput}></i>
 			</div>
 			<div class="ui primary button">Add Video</div>
 		  </div>
+		  <DropFile onDrop={onDrop} bind:this={fileInput} />
+		  <!-- {#if fileInput} -->
+		  <video
+		  poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg"
 
-		  
+	src={fileInput}
+	on:mousemove={handleMove}
+	on:touchmove|preventDefault={handleMove}
+	on:mousedown={handleMousedown}
+	on:mouseup={handleMouseup}
+>
+	<track kind="captions">
+</video>
+<!-- {/if}		   -->
 <!-- <div class="grid u-gap-2 u-text-center">
     <div class="grid-c-12 grid-r-1 u-text-right u-gap-1" style="background: linear-gradient(to right, #8e2de2, #4a00e0); color: #fff; border-radius: .25rem;">
 		<div class="row level">
