@@ -1,16 +1,29 @@
 <script>
+
 	import {fade,fly,scale,slide} from"svelte/transition";
 	import Dashboard from "./Dashboard.svelte";
+	import VideoPlayer from 'svelte-video-player';
+	import DropFile from '@svelte-parts/drop-file'
 	// import f51 from '/images/Frame51.png.'
 	let version;
-	let fileInput="C:\Users\rbtun\Videos\VID_20210130_151000.mp4";
+	let realesr;
+	let fileInput="C:/Users/rbtun/Videos/V/realesrgan-ncnn-vulkan-20220424-windows/input.jpg";
+	let fileOutput="C:/Users/rbtun/Videos/V/realesrgan-ncnn-vulkan-20220424-windows/output.png";
 	let mode=1;
 	const get_version=async()=>{
 		version=await api.GetVersion()
 	}
-	 import DropFile from '@svelte-parts/drop-file'
+	const apply_realesr=async()=>{
+		let esrw=fileInput.split('\\').join('/')
+		let out=esrw.substring(0,esrw.lastIndexOf("/")+1)+"output.png"
+		console.log(out)
+		realesr=await api.Realesrgan(esrw,out)
+	}
 
-  const onDrop = files => {fileInput=files[0].path} 
+  const onDrop = files => {
+	fileInput=files[0].path;
+	alert(fileInput)
+} 
 
 	let user={
 		name:"Rohit",
@@ -31,18 +44,19 @@ function modeChange(){
 </script>
 
 <main>
-	<button class="ui button" on:click={get_version}>get version</button>
-	<h1>version is {version}<h1>
-		<div class="ui placeholder segment">
+	<button class="ui button" on:click={apply_realesr}>get version</button>
+	<h1>version is {realesr}<h1>
+		<!-- <div class="ui placeholder segment">
 			<div class="ui icon header">
 			  <i class="video file outline icon" type="file" bind:this={fileInput}></i>
 			</div>
 			<div class="ui primary button">Add Video</div>
-		  </div>
+		  </div> -->
 		  <DropFile onDrop={onDrop} bind:this={fileInput} />
+		  <!-- <VideoPlayer 		  poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg"
+		  src={fileInput} />	 -->
 		  <!-- {#if fileInput} -->
-		  <video
-		  poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg"
+		  <!-- <video
 
 	src={fileInput}
 	on:mousemove={handleMove}
@@ -51,7 +65,7 @@ function modeChange(){
 	on:mouseup={handleMouseup}
 >
 	<track kind="captions">
-</video>
+</video> -->
 <!-- {/if}		   -->
 <!-- <div class="grid u-gap-2 u-text-center">
     <div class="grid-c-12 grid-r-1 u-text-right u-gap-1" style="background: linear-gradient(to right, #8e2de2, #4a00e0); color: #fff; border-radius: .25rem;">
