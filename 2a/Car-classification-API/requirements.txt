@@ -1,0 +1,9 @@
+flask
+werkzeug
+gevent
+monk-pytorch-cpu
+torch==1.5.0
+torchvision==0.6.0
+matplotlib==3.2.0
+
+ conda install flask werkzeug gevent pytorch==1.5.0 torchvision==0.6.0 cpuonly -c pytorch
