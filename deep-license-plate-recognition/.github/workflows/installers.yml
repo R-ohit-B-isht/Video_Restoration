@@ -1,0 +1,79 @@
+name: Build Installers
+
+on:
+  push:
+    branches:
+      - master
+    # Run Action only when /docker is pushed to
+    paths:
+      - 'docker/**'
+  workflow_dispatch:
+
+jobs:
+  windows-installer:
+    name: Windows
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Installer
+      run: docker run -v $GITHUB_WORKSPACE/docker:/src/ danleyb2/pyinstaller-windows "pyinstaller platerec_installer.spec -F"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Windows-Installer-unsigned
+        path: docker/dist
+
+  linux-installer:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Installer
+      run: docker run -v $GITHUB_WORKSPACE/docker:/src/ cdrx/pyinstaller-linux "pyinstaller platerec_installer.spec -F"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: PlateRecognizer-Installer-Linux
+        path: docker/dist/PlateRecognizer-Installer
+
+  sign-installer:
+    name: Sign
+    runs-on: windows-latest
+    needs: windows-installer
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: Windows-Installer-unsigned
+          path: dist
+          
+      - uses: DanaBear/code-sign-action@98c79121b376beab8d6a9484f445089db4461bca
+        with:
+          certificate: '${{ secrets.CERTIFICATE }}'
+          password: '${{ secrets.PASSWORD }}'
+          certificatesha1: '${{ secrets.CERTIFICATE_SHA1 }}'
+          timestampUrl: '${{ secrets.TIMESTAMP_URL }}'
+          folder: dist
+          recursive: true
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: PlateRecognizer-Installer-Windows
+          path: dist
+
+  mac-installer:
+    runs-on: macos-latest
+    name: MacOS
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7.12
+    - name: Build Installer
+      run: |
+        cd docker
+        pip install -r requirements.txt pyinstaller==4.9
+        pyinstaller platerec_installer.spec -F
+        chmod -R +x dist
+    - uses: actions/upload-artifact@v2
+      with:
+        name: PlateRecognizer-Installer-MacOS
+        path: docker/dist/*
+
